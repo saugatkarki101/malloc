@@ -242,20 +242,14 @@ void *malloc(size_t size)
    /* TODO: Split free _block if possible */
    if(next && next->size>size)
    {
+   num_blocks++;
    num_splits++;
    struct _block *curr = heapList;
    int old_size = curr->size;
    struct _block *orig_nextptr = curr->next;
    u_int8_t * ptr = curr;
    curr->next= (struct _block*)(ptr+size+sizeof(struct _block));
-	
-   //struct _block *orig_nextptr= next->next;
-   //u_int8_t * ptr =(u_int8_t*) next;
-   //ptr = ptr - (next->size-size);   
-   //next-next = (struct _block*)(ptr);
-   //next->next->size = next->size - size - sizeof(struct _block);
-   //next->next->next = orig_nextptr;
-  //next->next->free = true;
+   
    curr->next->free = 1;
    curr->next->size = old_size - size - sizeof(struct _block);
    curr->next->next = orig_nextptr;
@@ -268,8 +262,7 @@ void *malloc(size_t size)
       next = growHeap(last, size);
       max_heap+=next->size;
       num_grows++;
-   }
-
+   }	
 
    /* Could not find free _block or grow heap, so just return NULL */
    if (next == NULL) 
@@ -310,6 +303,7 @@ void free(void *ptr)
    struct _block *availableBlocks = heapList;
    while(availableBlocks!=NULL)
    {
+
       if(availableBlocks->free!=true)
       {
          availableBlocks = availableBlocks->next;
@@ -326,7 +320,8 @@ void free(void *ptr)
       }
       if(checker!=availableBlocks)
       {
-         num_coalesces++;
+	num_blocks--; 
+        num_coalesces++;
       }  
 
 
